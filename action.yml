@@ -1,6 +1,6 @@
 name: goosey social card check
 description: Fail a build when a page's social card is broken. Checks Open Graph and Twitter card tags, and the image, with the api.poly.io/og API.
-author: Polymorphism Ltd
+author: Tom Baldwin
 branding:
   icon: share-2
   color: blue
@@ -27,11 +27,15 @@ inputs:
     required: false
     default: ""
   fail-on-unreachable:
-    description: Whether a page the API could not check (a 404, a host that does not resolve, the daily allowance spent) fails the step.
+    description: Whether a page the API could not check (a 404, a host that does not resolve) fails the step. A spent daily allowance only warns, as it says nothing about the change under review.
     required: false
     default: "true"
   key:
     description: An API key for a larger daily allowance, sent as the x-og-key header. Pass it from a secret.
+    required: false
+    default: ""
+  contact:
+    description: An email address or URL we can reach you at, sent as the x-og-contact header. It raises the free daily allowance from 500 to 2,000 checks, which matters on shared runners. It is kept in the API's logs for 90 days.
     required: false
     default: ""
 
@@ -64,4 +68,5 @@ runs:
         INPUT_LEVELS: ${{ inputs.levels }}
         INPUT_FAIL_ON_UNREACHABLE: ${{ inputs.fail-on-unreachable }}
         INPUT_KEY: ${{ inputs.key }}
+        INPUT_CONTACT: ${{ inputs.contact }}
       run: '"$GITHUB_ACTION_PATH/lib/main.sh"'

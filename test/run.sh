@@ -106,7 +106,9 @@ cigate='.ok and ([.checks[]
        | select(.level == "error" or (.level != "ok" and (.id as $i | $up | index($i))))
        | select(.id as $i | $down | index($i) | not)
      ] | length == 0)'
-for fx in pass.json error.json warn.json unreachable.json quota.json badkey.json; do
+# quota.json is left out on purpose: goosey's pasted gate fails a build on a spent allowance, and
+# the action only warns (see the quota tests below), because it says nothing about the change.
+for fx in pass.json error.json warn.json unreachable.json badkey.json; do
   for lv in '{}' '{"description.missing":"error"}' '{"image.missing":"ignore"}' '{"image.missing":"warn"}' \
             '{"title.ok":"error"}' '{"type.missing":"error","image.missing":"tip"}' '{"site-name.missing":"error"}'; do
     # ciGate's two lists, built as it builds them: the ids passed on the page are left out, then
@@ -165,7 +167,8 @@ action INPUT_URLS="https://c.example/" INPUT_FAIL_ON=warn; code=$?
 check "fail-on warn fails on a warning" '[ $code = 1 ]'
 
 action INPUT_URLS="$(printf 'https://a.example/\nhttps://spent.example/\nhttps://b.example/\nhttps://c.example/')"; code=$?
-check "quota: the run stops at the first refusal and asks nothing more" '[ $code = 1 ] && [ "$(calls)" = 2 ]'
+check "quota: the run stops at the first refusal and asks nothing more" '[ "$(calls)" = 2 ]'
+check "quota: a spent allowance warns and does not fail the step" '[ $code = 0 ] && grep -q "^::warning" "$tmp/stdout" && ! grep -q "^::error" "$tmp/stdout"'
 check "quota: the pages after it are listed as not checked, with one message for all of them" \
   '[ "$(out pages)" = 4 ] && [ "$(grep -c "Not checked" "$tmp/summary")" = 2 ] && [ "$(grep -c "run stopped" "$tmp/stdout")" = 1 ]'
 
@@ -190,6 +193,12 @@ check "site with no sitemap: fails, says why, still checks the urls" \
 action INPUT_URLS="https://a.example/" INPUT_KEY="sekrit-key"; code=$?
 check "the key goes in the x-og-key header, and is masked" \
   '[ $code = 0 ] && grep -qF "[x-og-key: sekrit-key]" "$FAKE_LOG" && grep -qF "::add-mask::sekrit-key" "$tmp/stdout"'
+
+action INPUT_URLS="https://a.example/" INPUT_CONTACT="  ops@example.com "; code=$?
+check "a contact goes in the x-og-contact header, trimmed" \
+  '[ $code = 0 ] && grep -qF "[x-og-contact: ops@example.com]" "$FAKE_LOG"'
+action INPUT_URLS="https://a.example/"; code=$?
+check "no contact, no header" '! grep -q "x-og-contact" "$FAKE_LOG"'
 
 action; code=$?
 check "no urls and no site is refused" '[ $code = 1 ] && grep -q "Give urls, site, or both" "$tmp/stdout" && [ "$(calls)" = 0 ]'

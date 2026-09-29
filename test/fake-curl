@@ -10,7 +10,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     -o) out="$2"; shift ;;
     -w|--max-time) shift ;;
-    -H) header="$2"; shift ;;
+    -H) header="${header:+$header][}$2"; shift ;;   # every header, logged as [a][b]
     --data-urlencode) case "$2" in url=*|site=*) value="${2#*=}" ;; esac; shift ;;
   esac
   shift

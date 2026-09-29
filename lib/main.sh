@@ -15,6 +15,7 @@ cap="${INPUT_CAP:-40}"
 fail_on="${INPUT_FAIL_ON:-error}"
 levels_in="${INPUT_LEVELS:-}"
 key="${INPUT_KEY:-}"
+contact="${INPUT_CONTACT:-}"
 fail_unchecked="${INPUT_FAIL_ON_UNREACHABLE:-true}"
 
 die() { echo "::error title=goosey::$1"; exit 1; }
@@ -28,6 +29,7 @@ site="$(trim "$site")"
 fail_on="$(trim "$fail_on")"
 cap="$(trim "$cap")"
 fail_unchecked="$(trim "$fail_unchecked")"
+contact="$(trim "$contact")"
 case "$fail_on" in error|warn) ;; *) die "fail-on must be error or warn, not '$fail_on'." ;; esac
 case "$fail_unchecked" in true|false) ;; *) die "fail-on-unreachable must be true or false, not '$fail_unchecked'." ;; esac
 [[ "$cap" =~ ^[0-9]+$ ]] && [ "$cap" -ge 1 ] && [ "$cap" -le 100 ] || die "cap must be a whole number from 1 to 100, not '$cap'."
@@ -65,6 +67,7 @@ call() {   # call <param> <value> [extra --data-urlencode pairs...]
   shift 2
   local p; for p in "$@"; do args+=(--data-urlencode "$p"); done
   [ -n "$key" ] && args+=(-H "x-og-key: $key")
+  [ -n "$contact" ] && args+=(-H "x-og-contact: $contact")
   : >"$work/body"
   http="$(curl "${args[@]}" "$API" 2>"$work/curl.err")" || http=000
 }

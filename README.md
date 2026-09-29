@@ -70,8 +70,9 @@ they are deployed somewhere it can reach. On a preview deployment, pass the prev
 | `cap` | `40` | With `site`, the most pages the plan may pick, from 1 to 100. Planning is one call and each page is one more. |
 | `fail-on` | `error` | `error` or `warn`: the level, after your levels, that fails the step. |
 | `levels` | | Your levels as JSON: check id to `ignore`, `tip`, `warn` or `error`. See below. |
-| `fail-on-unreachable` | `true` | Whether a page the API could not check fails the step. |
+| `fail-on-unreachable` | `true` | Whether a page the API could not check fails the step. A spent allowance only warns. |
 | `key` | | An API key, sent as the `x-og-key` header. Pass it from a secret. |
+| `contact` | | An email address or URL, sent as the `x-og-contact` header. Raises the anonymous allowance to 2,000 a day. |
 
 At least one of `urls` and `site` is required. With both, the pages are checked together.
 
@@ -118,10 +119,12 @@ build: the API adds new checks at `warn` or `tip`, never at `error`, and logs ea
 
 ## Pages that could not be checked
 
-A page the API could not check is its own outcome, not a pass. The page may return a 404, its host
-may not resolve, or the day's allowance may be spent. By default it fails the step, because a gate
-that goes green without looking is worse than none. Set `fail-on-unreachable: false` to report it
-as a warning instead.
+A page the API could not check is its own outcome, not a pass. The page may return a 404, or its
+host may not resolve. By default it fails the step, because a gate that goes green without looking
+is worse than none. Set `fail-on-unreachable: false` to report it as a warning instead.
+
+A spent daily allowance is different: it says nothing about the change under review, so it only
+warns, and so do the pages the run could not reach because of it.
 
 The run stops early, and says so once, when every further call would be refused the same way: the
 daily allowance is spent, the key is not accepted, or the API is refusing calls (HTTP 429 from the
@@ -135,6 +138,9 @@ Anonymous calls get 500 a day, counted per network address. A GitHub-hosted runn
 shared with other people's jobs, so on a busy day an anonymous run can find the allowance already
 spent. A [free key](https://www.poly.io/social-card-preview/api/#key) raises it to 5,000 a day and
 counts it against the key, whichever runner the job lands on.
+
+Without a key, a `contact` input (an email address or a URL) raises the anonymous allowance to 2,000
+a day, so that someone can reach you if a job misbehaves. It is kept in the API's logs for 90 days.
 
 Store the key as a repository secret and pass it in:
 

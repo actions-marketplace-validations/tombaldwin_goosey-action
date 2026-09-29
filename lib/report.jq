@@ -30,6 +30,9 @@ def link: "<" + (gsub(" "; "%20") | gsub("<"; "%3C") | gsub(">"; "%3E") | gsub("
 | def fails:
     if .status == "checked" then any(.findings[]; (.level | rank) >= $bar)
     elif .status == "auth" then true            # a bad key fails whatever: it is your configuration
+    # A spent allowance says nothing about the change under review, so it warns rather than fails,
+    # as the API's own docs advise; so do the pages a run stopped by it never reached.
+    elif .status == "quota" or (.status == "skipped" and .code == "quota_exceeded") then false
     else $strict end;
   ([ $pages[] | select(.status == "checked") | .findings[] ]) as $found
 | ([ $pages[] | select(fails) ] | length) as $failedPages
@@ -50,7 +53,7 @@ def link: "<" + (gsub(" "; "%20") | gsub("<"; "%3C") | gsub(">"; "%3E") | gsub("
       ( $all[] | select(.unchecked and .status != "skipped")
         | "::\(if fails then "error" else "warning" end) title=\("goosey: " + (if .kind == "site" then "site not planned" else "not checked" end) | escp)::\("\(.url): \(.error) (\(.code))" | esc)" ),
       ( if $skipped > 0 then
-          "::\(if $strict then "error" else "warning" end) title=goosey%3A run stopped::\("\(plural($skipped; "page was"; "pages were")) not checked because the run stopped early; see the first refusal above." | esc)"
+          "::\(if any($pages[]; .status == "skipped" and fails) then "error" else "warning" end) title=goosey%3A run stopped::\("\(plural($skipped; "page was"; "pages were")) not checked because the run stopped early; see the first refusal above." | esc)"
         else empty end )
     ],
 
