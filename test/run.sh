@@ -122,6 +122,11 @@ for fx in pass.json error.json warn.json unreachable.json badkey.json; do
   done
 done
 
+# The Marketplace refuses a listing whose description is 125 characters or more. The first release was
+# turned away for exactly that, which is some irony for a tool that checks description lengths.
+desc="$(sed -n 's/^description: //p' "$root/action.yml")"
+check "the action's description fits the Marketplace (under 125 characters)" '[ ${#desc} -gt 0 ] && [ ${#desc} -lt 125 ]'
+
 # ---- the whole action, with curl faked -----------------------------------------
 echo "# end to end"
 mkdir -p "$tmp/bin"

@@ -1,5 +1,5 @@
 name: goosey social card check
-description: Fail a build when a page's social card is broken. Checks Open Graph and Twitter card tags, and the image, with the api.poly.io/og API.
+description: Fail a build when a page's social card breaks: its Open Graph and Twitter card tags, and its image, checked by goosey.
 author: Tom Baldwin
 branding:
   icon: share-2
