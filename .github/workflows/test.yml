@@ -11,7 +11,7 @@ jobs:
     name: gate rules, recorded answers
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: shellcheck lib/*.sh test/run.sh test/fake-curl
       - run: test/run.sh
 
@@ -19,7 +19,7 @@ jobs:
     name: the action against www.poly.io
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: goosey
         uses: ./
         with:

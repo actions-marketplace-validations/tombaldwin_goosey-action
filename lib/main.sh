@@ -32,7 +32,9 @@ fail_unchecked="$(trim "$fail_unchecked")"
 contact="$(trim "$contact")"
 case "$fail_on" in error|warn) ;; *) die "fail-on must be error or warn, not '$fail_on'." ;; esac
 case "$fail_unchecked" in true|false) ;; *) die "fail-on-unreachable must be true or false, not '$fail_unchecked'." ;; esac
-[[ "$cap" =~ ^[0-9]+$ ]] && [ "$cap" -ge 1 ] && [ "$cap" -le 100 ] || die "cap must be a whole number from 1 to 100, not '$cap'."
+if ! [[ "$cap" =~ ^[0-9]+$ ]] || [ "$cap" -lt 1 ] || [ "$cap" -gt 100 ]; then
+  die "cap must be a whole number from 1 to 100, not '$cap'."
+fi
 [ -n "$key" ] && echo "::add-mask::$key"
 
 # Levels: the shape goosey stores. Only ignore, tip, warn and error are levels, as in goosey,
