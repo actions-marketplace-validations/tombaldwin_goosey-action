@@ -1,0 +1,1 @@
+{"ok":false,"code":"unknown_key","error":"That API key isn’t recognised. Check it, or drop the header to use the free anonymous allowance.","retryable":false,"source":"https://www.poly.io/social-card-preview/api/","spec":"https://www.poly.io/llms.txt","specVersion":"1.6.2","specNext":null,"quota":"https://api.poly.io/og/quota"}

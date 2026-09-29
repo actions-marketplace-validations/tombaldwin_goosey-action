@@ -1,0 +1,5 @@
+{"ok":true,"finalUrl":"https://www.example.org/","host":"www.example.org","title":"Example","description":"An example page with a complete card.","imageOk":true,"imageWidth":1200,"imageHeight":630,"checks":[
+ {"level":"ok","id":"title.ok","message":"Title present (7 chars)."},
+ {"level":"ok","id":"description.ok","message":"Description present (38 chars)."},
+ {"level":"ok","id":"image.loads","message":"Image loads."},
+ {"level":"ok","id":"ua-diff.same","message":"Crawlers and browsers get the same title, description and image."}],"source":"https://www.poly.io/social-card-preview/api/","spec":"https://www.poly.io/llms.txt","specVersion":"1.6.2","specNext":null,"quota":"https://api.poly.io/og/quota"}

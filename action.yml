@@ -1,0 +1,67 @@
+name: goosey social card check
+description: Fail a build when a page's social card is broken. Checks Open Graph and Twitter card tags, and the image, with the api.poly.io/og API.
+author: Polymorphism Ltd
+branding:
+  icon: share-2
+  color: blue
+
+inputs:
+  urls:
+    description: Pages to check, one per line. Blank lines and lines starting with # are skipped.
+    required: false
+    default: ""
+  site:
+    description: An origin such as https://example.com. The API reads its sitemap and picks one or more pages per template to check.
+    required: false
+    default: ""
+  cap:
+    description: With site, the most pages the plan may pick (1 to 100). Each is one call against your allowance.
+    required: false
+    default: "40"
+  fail-on:
+    description: The level that fails the step, error or warn, after your levels are applied.
+    required: false
+    default: error
+  levels:
+    description: 'Your levels, as goosey stores them: a JSON object of check id to ignore, tip, warn or error, such as {"image.webp":"ignore","author.missing":"error"}. A passing check is never re-levelled.'
+    required: false
+    default: ""
+  fail-on-unreachable:
+    description: Whether a page the API could not check (a 404, a host that does not resolve, the daily allowance spent) fails the step.
+    required: false
+    default: "true"
+  key:
+    description: An API key for a larger daily allowance, sent as the x-og-key header. Pass it from a secret.
+    required: false
+    default: ""
+
+outputs:
+  errors:
+    description: Findings at error, after levels, across every page checked.
+    value: ${{ steps.goosey.outputs.errors }}
+  warnings:
+    description: Findings at warn, after levels, across every page checked.
+    value: ${{ steps.goosey.outputs.warnings }}
+  pages:
+    description: Pages the run set out to check, including any it could not.
+    value: ${{ steps.goosey.outputs.pages }}
+  failed-pages:
+    description: Pages that failed the gate.
+    value: ${{ steps.goosey.outputs.failed-pages }}
+
+runs:
+  using: composite
+  steps:
+    - id: goosey
+      shell: bash
+      # Inputs travel as environment variables, never spliced into the script, so a URL or a
+      # level holding shell syntax is data and nothing else.
+      env:
+        INPUT_URLS: ${{ inputs.urls }}
+        INPUT_SITE: ${{ inputs.site }}
+        INPUT_CAP: ${{ inputs.cap }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_LEVELS: ${{ inputs.levels }}
+        INPUT_FAIL_ON_UNREACHABLE: ${{ inputs.fail-on-unreachable }}
+        INPUT_KEY: ${{ inputs.key }}
+      run: '"$GITHUB_ACTION_PATH/lib/main.sh"'

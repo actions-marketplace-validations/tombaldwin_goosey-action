@@ -1,0 +1,5 @@
+{"ok":true,"finalUrl":"https://www.example.org/blog/post","host":"www.example.org","title":"A post","checks":[
+ {"level":"ok","id":"title.ok","message":"Title present (6 chars)."},
+ {"level":"warn","id":"description.missing","message":"No description — set og:description."},
+ {"level":"tip","id":"image-alt.missing","message":"Add og:image:alt describing the image, for screen-reader users."},
+ {"level":"ok","id":"image.loads","message":"Image loads."}],"source":"https://www.poly.io/social-card-preview/api/","spec":"https://www.poly.io/llms.txt","specVersion":"1.6.2","specNext":null,"quota":"https://api.poly.io/og/quota"}

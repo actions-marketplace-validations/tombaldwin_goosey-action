@@ -1,0 +1,35 @@
+name: test
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "17 7 * * 1"
+
+jobs:
+  offline:
+    name: gate rules, recorded answers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: shellcheck lib/*.sh test/run.sh test/fake-curl
+      - run: test/run.sh
+
+  self-check:
+    name: the action against www.poly.io
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: goosey
+        uses: ./
+        with:
+          urls: https://www.poly.io/
+      - name: outputs are set
+        env:
+          PAGES: ${{ steps.goosey.outputs.pages }}
+          ERRORS: ${{ steps.goosey.outputs.errors }}
+          WARNINGS: ${{ steps.goosey.outputs.warnings }}
+          FAILED: ${{ steps.goosey.outputs.failed-pages }}
+        run: |
+          echo "pages=$PAGES errors=$ERRORS warnings=$WARNINGS failed-pages=$FAILED"
+          [ "$PAGES" = 1 ] && [ "$FAILED" = 0 ]

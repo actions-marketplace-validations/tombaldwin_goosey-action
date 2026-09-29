@@ -1,0 +1,7 @@
+{"ok":true,"finalUrl":"https://example.com/","host":"example.com","title":"Example Domain","description":"","imageUrl":"","imageOk":false,"checks":[
+ {"level":"ok","id":"title.ok","message":"Title present (14 chars)."},
+ {"level":"warn","id":"description.missing","message":"No description — set og:description."},
+ {"level":"error","id":"image.missing","message":"No og:image — most platforms show a bare link with no thumbnail."},
+ {"level":"warn","id":"type.missing","message":"No og:type — set one (e.g. \"website\" or \"article\")."},
+ {"level":"tip","id":"site-name.missing","message":"Add og:site_name so platforms show your brand, not the bare domain."},
+ {"level":"ok","id":"ua-diff.same","message":"Crawlers and browsers get the same title, description and image."}],"source":"https://www.poly.io/social-card-preview/api/","spec":"https://www.poly.io/llms.txt","specVersion":"1.6.2","specNext":null,"quota":"https://api.poly.io/og/quota"}

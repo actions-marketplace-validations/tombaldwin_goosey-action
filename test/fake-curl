@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Stands in for curl in the end-to-end tests, so the action runs whole with no network. It reads
+# the url= or site= value the action sends, looks it up in $FAKE_MAP (lines of
+# "value<TAB>http-status<TAB>fixture"), writes the fixture to the -o file and prints the status the
+# way -w '%{http_code}' would. Every call is logged to $FAKE_LOG, one value per line, so a test can
+# count them: that is how "one retry, not a storm" is checked.
+set -euo pipefail
+out='' value='' header=''
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -o) out="$2"; shift ;;
+    -w|--max-time) shift ;;
+    -H) header="$2"; shift ;;
+    --data-urlencode) case "$2" in url=*|site=*) value="${2#*=}" ;; esac; shift ;;
+  esac
+  shift
+done
+echo "$value${header:+ [$header]}" >>"$FAKE_LOG"
+line="$(awk -F'\t' -v v="$value" '$1 == v { print; exit }' "$FAKE_MAP")"
+[ -n "$line" ] || { echo "fake-curl: no fixture for $value" >&2; exit 6; }
+http="$(cut -f2 <<<"$line")"
+cp "$FIXTURES/$(cut -f3 <<<"$line")" "$out"
+printf '%s' "$http"
