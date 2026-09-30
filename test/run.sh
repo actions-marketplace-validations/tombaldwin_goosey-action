@@ -124,7 +124,11 @@ done
 
 # The Marketplace refuses a listing whose description is 125 characters or more. The first release was
 # turned away for exactly that, which is some irony for a tool that checks description lengths.
-desc="$(sed -n 's/^description: //p' "$root/action.yml")"
+# Read the way GitHub reads it, as YAML. v1.0.2 shipped a description with ": " in it unquoted, which
+# is a new mapping to a YAML parser: the file did not load, the action failed for every caller of @v1,
+# and the Marketplace would not offer to publish it. A sed over the raw line had passed it.
+desc="$(ruby -ryaml -e 'print YAML.safe_load(File.read(ARGV[0])).fetch("description")' "$root/action.yml" 2>/dev/null)" || desc=""
+check "action.yml parses as YAML and has a description" '[ -n "$desc" ]'
 check "the action's description fits the Marketplace (under 125 characters)" '[ ${#desc} -gt 0 ] && [ ${#desc} -lt 125 ]'
 
 # ---- the whole action, with curl faked -----------------------------------------
